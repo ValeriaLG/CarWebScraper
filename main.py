@@ -3,6 +3,10 @@ import csv
 from datetime import datetime
 import xlwt as worksheetMaker
 import sys
+import os.path
+import pandas
+# from openpyxl import load_workbook
+import openpyxl
 
 from oauth2client.service_account import ServiceAccountCredentials
 from apiclient.discovery import build
@@ -100,7 +104,7 @@ def scrape_The_Data_carFax(inputWebsite):
 
 
 
-def add_to_WorkSheet(returnedData):
+def overwrite_WorkSheet(returnedData):
     mainStyle = worksheetMaker.easyxf('font: name Times New Roman, color-index black, bold off', num_format_str='#,##0.00')
     styleDate = worksheetMaker.easyxf(num_format_str='dd/mm/yyyy')
     headerBold = worksheetMaker.easyxf('font: name Times New Roman, color-index black, bold on')
@@ -124,9 +128,47 @@ def add_to_WorkSheet(returnedData):
     wb.save('carEvalsAutomated.xls')
 
 
+def append_Worksheet(returnedData):
+     wb = openpyxl.load_workbook('carEvalsAutomated.xlsx')
+     ws = wb.get_sheet_by_name('Car Evaluations')
+
+     actualData = returnedData[1]
+     headers = returnedData[0]
+     iteratorC = 0
+
+     for column in range(1, len(headers) + 1):
+         referencedcell = ws.cell(row=1, column=column)
+         if (referencedcell.value == None):
+             referencedcell.value = headers[iteratorC]
+         iteratorC += 1
+
+     iteratorC = 0
+     startingRow = 1
+     foundBlank = False
+     i = 1
+     while foundBlank == False:
+         if ws.cell(row=i, column=1).value == None:
+              print(i)
+              startingRow = i
+              foundBlank = True
+         i += 1
+
+     for row, array in enumerate(actualData, start=startingRow-1):
+         for col, value in enumerate(array):
+             print(str(value))
+             referencedcell = ws.cell(row=row+1, column=col+1)
+             referencedcell.value = value
+
+
+     wb.save('carEvalsAutomated.xlsx')
+
+
 
 returnedData = ask_Input()
-add_to_WorkSheet(returnedData)
+if (os.path.isfile('carEvalsAutomated.xls')):
+    append_Worksheet(returnedData)
+else:
+    overwrite_WorkSheet(returnedData)
 
 #uncomment when want to upload to google
 #upload_To_Google()
