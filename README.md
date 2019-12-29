@@ -10,4 +10,5 @@ This script automates the stripping of car information into a csv file and uploa
 - add code to accept input for which type of website it is: Carfax or Carmax instead of a hardcoded array
 - format the CSV file better so that there are better column headers
 - put mathematical functions into csv to calculate cost
-- add code from Google API to upload csv and share with others
+- test code written for the Google API to upload csv and share with others
+- convert csv code into excel worksheet code
