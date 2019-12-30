@@ -93,7 +93,8 @@ def scrape_The_Data_carFax(inputWebsite):
 def append_Worksheet(returnedData):
     if (os.path.isfile('carEvalsAutomated.xlsx') == False):
         wb = openpyxl.Workbook()
-        ws = wb.create_sheet('Car Evaluations', 0)
+        ws = wb.active
+        ws.title = "Car Evaluations"
     else:
         wb = openpyxl.load_workbook('carEvalsAutomated.xlsx')
         ws = wb.get_sheet_by_name('Car Evaluations')
@@ -120,7 +121,6 @@ def append_Worksheet(returnedData):
 
     for row, array in enumerate(actualData, start=startingRow-1):
          for col, value in enumerate(array):
-             print(str(value))
              referencedcell = ws.cell(row=row+1, column=col+1)
              referencedcell.value = value
 

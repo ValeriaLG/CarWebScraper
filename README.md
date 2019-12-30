@@ -18,4 +18,4 @@ Must have python installed. Inputted websites must be from Carfax only.
 - ~~convert csv code into excel worksheet code~~
 - write test cases
 - ~~fix logic for checking if spreadsheet exists~~
-- delete the other new sheet created when making a new workbook
+- ~~delete the other new sheet created when making a new workbook~~
