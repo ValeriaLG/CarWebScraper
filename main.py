@@ -1,17 +1,9 @@
 # import libraries
-import csv
 from datetime import datetime
-import xlwt as worksheetMaker
 import sys
 import os.path
 import pandas
-# from openpyxl import load_workbook
 import openpyxl
-
-from oauth2client.service_account import ServiceAccountCredentials
-from apiclient.discovery import build
-from apiclient.http import MediaFileUpload
-
 try:
     import urllib.request as urllib2
 except ImportError:
@@ -19,13 +11,6 @@ except ImportError:
 from bs4 import BeautifulSoup
 
 
-# Not Tested
-def upload_To_Google():
-    creds = ServiceAccountCredentials.from_json_keyfile_name('GOOGLE_APPLICATION_CREDENTIALS', ['https://www.googleapis.com/auth/drive.file'])
-    drive_api = build('drive', 'v3', credentials=creds)
-    file_metadata = {'name': 'carEvalsAutomated.csv', 'mimeType': 'application/vdn.google-apps.spreadsheet'}
-    media = MediaFileUpload('carEvalsAutomated.csv', mimetype= 'text/csv', resumable=True)
-    something = drive_api.files().create(body=file_metadata, media_body=media).execute()
 
 # some example urls... ['https://www.carfax.com/vehicle/4S3GTAK65H3723107', 'https://www.carfax.com/vehicle/4S3GKAM62K3616300']
 def ask_Input():
@@ -104,71 +89,44 @@ def scrape_The_Data_carFax(inputWebsite):
 
 
 
-def overwrite_WorkSheet(returnedData):
-    mainStyle = worksheetMaker.easyxf('font: name Times New Roman, color-index black, bold off', num_format_str='#,##0.00')
-    styleDate = worksheetMaker.easyxf(num_format_str='dd/mm/yyyy')
-    headerBold = worksheetMaker.easyxf('font: name Times New Roman, color-index black, bold on')
 
-    wb = worksheetMaker.Workbook()
-    ws = wb.add_sheet('Car Evaluations')
-
+def append_Worksheet(returnedData):
+    if (os.path.isfile('carEvalsAutomated.xlsx') == False):
+        wb = openpyxl.Workbook()
+        ws = wb.create_sheet('Car Evaluations', 0)
+    else:
+        wb = openpyxl.load_workbook('carEvalsAutomated.xlsx')
+        ws = wb.get_sheet_by_name('Car Evaluations')
 
     actualData = returnedData[1]
     headers = returnedData[0]
+    iteratorC = 0
 
-    for column in range(len(headers)):
-        ws.write(0, column, headers[column], headerBold)
-
-    for row in range(len(actualData)):
-        for column in range(len(actualData[row])):
-            ws.write(row + 1, column, actualData[row][column], mainStyle)
-
-
-
-    wb.save('carEvalsAutomated.xls')
-
-
-def append_Worksheet(returnedData):
-     wb = openpyxl.load_workbook('carEvalsAutomated.xlsx')
-     ws = wb.get_sheet_by_name('Car Evaluations')
-
-     actualData = returnedData[1]
-     headers = returnedData[0]
-     iteratorC = 0
-
-     for column in range(1, len(headers) + 1):
+    for column in range(1, len(headers) + 1):
          referencedcell = ws.cell(row=1, column=column)
          if (referencedcell.value == None):
              referencedcell.value = headers[iteratorC]
          iteratorC += 1
 
-     iteratorC = 0
-     startingRow = 1
-     foundBlank = False
-     i = 1
-     while foundBlank == False:
+    startingRow = 1
+    foundBlank = False
+    i = 1
+    while foundBlank == False:
          if ws.cell(row=i, column=1).value == None:
               print(i)
               startingRow = i
               foundBlank = True
          i += 1
 
-     for row, array in enumerate(actualData, start=startingRow-1):
+    for row, array in enumerate(actualData, start=startingRow-1):
          for col, value in enumerate(array):
              print(str(value))
              referencedcell = ws.cell(row=row+1, column=col+1)
              referencedcell.value = value
 
-
-     wb.save('carEvalsAutomated.xlsx')
+    wb.save('carEvalsAutomated.xlsx')
 
 
 
 returnedData = ask_Input()
-if (os.path.isfile('carEvalsAutomated.xls')):
-    append_Worksheet(returnedData)
-else:
-    overwrite_WorkSheet(returnedData)
-
-#uncomment when want to upload to google
-#upload_To_Google()
+append_Worksheet(returnedData)
